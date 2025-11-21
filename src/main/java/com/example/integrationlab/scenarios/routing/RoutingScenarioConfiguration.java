@@ -4,11 +4,7 @@ import com.example.integrationlab.domain.Order;
 import com.example.integrationlab.domain.OrderType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.integration.annotation.Filter;
-import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.dsl.IntegrationFlow;
-import org.springframework.integration.dsl.IntegrationFlows;
-import org.springframework.integration.dsl.Pollers;
 import org.springframework.integration.router.HeaderValueRouter;
 
 @Configuration
@@ -16,7 +12,7 @@ public class RoutingScenarioConfiguration {
 
     @Bean
     public IntegrationFlow routingFlow() {
-        return IntegrationFlows.from("routingInputChannel")
+        return IntegrationFlow.from("routingInputChannel")
                 .filter((Order order) -> order.getAmount().doubleValue() >= 1000, f -> f.discardChannel("discardChannel"))
                 .publishSubscribeChannel(spec -> spec
                         .subscribe(flow -> flow

@@ -4,11 +4,8 @@ import com.example.integrationlab.domain.TotalWordCountReport;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.aggregator.DefaultAggregatingMessageGroupProcessor;
-import org.springframework.integration.aggregator.MessageCountReleaseStrategy;
 import org.springframework.integration.dsl.AggregatorSpec;
 import org.springframework.integration.dsl.IntegrationFlow;
-import org.springframework.integration.dsl.IntegrationFlows;
-import org.springframework.integration.handler.advice.ExpressionEvaluatingRequestHandlerAdvice;
 
 import java.util.List;
 
@@ -17,7 +14,7 @@ public class AggregationScenarioConfiguration {
 
     @Bean
     public IntegrationFlow aggregationFlow() {
-        return IntegrationFlows.from("aggregationInputChannel")
+        return IntegrationFlow.from("aggregationInputChannel")
                 .split()
                 .channel("executorChannel")
                 .handle(String.class, (payload, headers) -> payload.split("\\s+").length)
@@ -28,8 +25,7 @@ public class AggregationScenarioConfiguration {
 
     private void configureAggregator(AggregatorSpec spec) {
         spec.outputProcessor(new DefaultAggregatingMessageGroupProcessor() {
-            @Override
-            protected Object aggregatePayloads(List<Object> payloads, java.util.Map<String, Object> headers) {
+            private Object aggregatePayloads(List<Object> payloads, java.util.Map<String, Object> headers) {
                 int totalWords = payloads.stream().mapToInt(p -> (Integer) p).sum();
                 return new TotalWordCountReport(payloads.size(), totalWords);
             }

@@ -4,7 +4,6 @@ import com.example.integrationlab.domain.ProcessedText;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.dsl.IntegrationFlow;
-import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.Transformers;
 
 import java.time.Instant;
@@ -14,11 +13,15 @@ public class BasicScenarioConfiguration {
 
     @Bean
     public IntegrationFlow basicFlow() {
-        return IntegrationFlows.from("basicInputChannel")
+        return IntegrationFlow.from("basicInputChannel")
                 .transform((String payload) -> new ProcessedText(payload, payload.toUpperCase(), Instant.now()))
                 .wireTap("loggingChannel")
-                .transform(Transformers.objectToJson())
+                .transform(Transformers.toJson())
+                .wireTap("loggingChannel")
                 .handle(String.class, (json, headers) -> json)
+                .wireTap("loggingChannel")
                 .get();
+
+
     }
 }
